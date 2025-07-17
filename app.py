@@ -1,5 +1,3 @@
-import os
-import sys
 from flask import Flask, send_from_directory, request, jsonify
 from flask_cors import CORS
 import logging
@@ -83,45 +81,6 @@ def translate_text():
         logger.error(f"Terjadi kesalahan saat menerjemahkan: {str(e)}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-@app.route('/api/health', methods=['GET'])
-def health_check():
-    global translator
-    model_status = "loaded" if translator is not None else "not_loaded"
-    return jsonify({
-        "status": "healthy",
-        "model_status": model_status,
-        "service": "Translation API"
-    })
-
-@app.route('/api/model/reload', methods=['POST'])
-def reload_model():
-    global translator
-    try:
-        translator = None
-        success = load_translation_model()
-
-        if success:
-            return jsonify({"success": True, "message": "Model berhasil dimuat ulang"})
-        else:
-            return jsonify({"success": False, "error": "Gagal memuat ulang model"}), 500
-
-    except Exception as e:
-        logger.error(f"Error saat reload model: {str(e)}")
-        return jsonify({"success": False, "error": str(e)}), 500
-
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve(path):
-    if app.static_folder is None:
-        return "Static folder not configured", 404
-
-    full_path = os.path.join(app.static_folder, path)
-    if path != "" and os.path.exists(full_path):
-        return send_from_directory(app.static_folder, path)
-    elif os.path.exists(os.path.join(app.static_folder, 'index.html')):
-        return send_from_directory(app.static_folder, 'index.html')
-    else:
-        return "index.html not found", 404
 
 if __name__ == '__main__':
     print("Memuat model terjemahan...")

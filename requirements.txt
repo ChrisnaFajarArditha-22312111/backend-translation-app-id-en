@@ -1,7 +1,4 @@
 flask
 flask-cors
 transformers
-sentencepiece
-torch
-protobuf
 huggingface_hub
